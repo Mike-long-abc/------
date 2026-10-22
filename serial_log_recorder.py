@@ -49,7 +49,7 @@ class SerialLogRecorder(tk.Tk):
 
         self.port_var = tk.StringVar()
         self.baud_var = tk.StringVar(value="115200")
-        self.directory_var = tk.StringVar(value=str(Path(__file__).parent / "串口日志"))
+        self.directory_var = tk.StringVar(value=r"E:\LEIDA_PROCESS\ESP32第二代雷达检测仪器\串口日志")
         self.prefix_var = tk.StringVar(value="测试")
         self.status_var = tk.StringVar(value="未打开串口")
         self.file_var = tk.StringVar(value="-")
@@ -280,7 +280,20 @@ class SerialLogRecorder(tk.Tk):
             return
 
         try:
-            serial_port = serial.Serial(port=port, baudrate=baud, timeout=0.2)
+            # Do not let pyserial's default DTR/RTS state toggle the ESP32
+            # automatic-download circuit.  Configure both lines while the
+            # port is still closed, then open it.
+            serial_port = serial.Serial(
+                port=None,
+                baudrate=baud,
+                timeout=0.2,
+                rtscts=False,
+                dsrdtr=False,
+            )
+            serial_port.dtr = False
+            serial_port.rts = False
+            serial_port.port = port
+            serial_port.open()
         except Exception as exc:
             messagebox.showerror("无法打开串口", f"{exc}\n\n请关闭 MobaXterm、SSCOM 或 idf.py monitor 后重试。")
             return
@@ -346,12 +359,23 @@ class SerialLogRecorder(tk.Tk):
             self.status_var.set("正在关闭串口…")
 
     def _finish_stop(self) -> None:
-        for resource in (self.serial_port, self.log_file):
-            if resource is not None:
-                try:
-                    resource.close()
-                except Exception:
-                    pass
+        if self.serial_port is not None:
+            try:
+                # Keep the modem-control lines deasserted before releasing
+                # the CH340 handle.  This avoids an EN/BOOT pulse on close.
+                self.serial_port.dtr = False
+                self.serial_port.rts = False
+            except Exception:
+                pass
+            try:
+                self.serial_port.close()
+            except Exception:
+                pass
+        if self.log_file is not None:
+            try:
+                self.log_file.close()
+            except Exception:
+                pass
         self.serial_port = None
         self.log_file = None
         was_saving = self.saving_enabled
