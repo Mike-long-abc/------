@@ -54,6 +54,10 @@ class SerialLogRecorder(tk.Tk):
         self.status_var = tk.StringVar(value="未打开串口")
         self.file_var = tk.StringVar(value="-")
         self.command_var = tk.StringVar()
+        self.search_var = tk.StringVar()
+        self.search_status_var = tk.StringVar(value="")
+        self.search_matches: list[tuple[str, str]] = []
+        self.search_match_index = -1
         self.preset_hint_var = tk.StringVar(value="点击常用指令后会填入输入框，可修改后再发送")
 
         self._configure_style()
@@ -116,6 +120,20 @@ class SerialLogRecorder(tk.Tk):
         ttk.Button(actions, text="清空日志显示", command=self.clear_display).pack(side="left", padx=(8, 0))
         ttk.Label(actions, textvariable=self.status_var, style="Title.TLabel").pack(side="right")
 
+        search_frame = ttk.Frame(actions)
+        search_frame.pack(side="right", padx=(12, 18), fill="x", expand=True)
+        ttk.Label(search_frame, text="查找").pack(side="left")
+        self.search_entry = ttk.Entry(search_frame, textvariable=self.search_var, width=30)
+        self.search_entry.pack(side="left", padx=(6, 5), fill="x", expand=True)
+        self.search_entry.bind("<Return>", lambda _event: self.find_next())
+        self.search_entry.bind("<Shift-Return>", lambda _event: self.find_previous())
+        self.search_var.trace_add("write", self._on_search_text_changed)
+        ttk.Button(search_frame, text="上一个", command=self.find_previous).pack(side="left", padx=(0, 5))
+        ttk.Button(search_frame, text="下一个", command=self.find_next).pack(side="left")
+        ttk.Label(search_frame, textvariable=self.search_status_var, width=10, anchor="center").pack(
+            side="left", padx=(6, 0)
+        )
+
         info = ttk.Frame(self, padding=(10, 2, 10, 5))
         info.pack(fill="x")
         ttk.Label(info, text="当前日志文件：").pack(side="left")
@@ -144,6 +162,8 @@ class SerialLogRecorder(tk.Tk):
         self.output.tag_configure("ansi_magenta", foreground="#d2a8ff")
         self.output.tag_configure("ansi_cyan", foreground="#56d4dd")
         self.output.tag_configure("ansi_white", foreground="#f0f6fc")
+        self.output.tag_configure("search_match", background="#665c20", foreground="#ffffff")
+        self.output.tag_configure("search_current", background="#f0883e", foreground="#101418")
         ybar = ttk.Scrollbar(output_frame, orient="vertical", command=self.output.yview)
         xbar = ttk.Scrollbar(output_frame, orient="horizontal", command=self.output.xview)
         self.output.configure(yscrollcommand=ybar.set, xscrollcommand=xbar.set)
@@ -579,6 +599,74 @@ class SerialLogRecorder(tk.Tk):
         self.output.configure(state="normal")
         self.output.delete("1.0", "end")
         self.output.configure(state="disabled")
+        self.search_matches = []
+        self.search_match_index = -1
+        self.search_status_var.set("")
+
+    def _on_search_text_changed(self, *_args) -> None:
+        self._collect_search_matches(select_first=False)
+
+    def _collect_search_matches(self, select_first: bool) -> bool:
+        """重建当前日志的匹配位置，默认不区分大小写。"""
+        keyword = self.search_var.get()
+        self.output.tag_remove("search_match", "1.0", "end")
+        self.output.tag_remove("search_current", "1.0", "end")
+        self.search_matches = []
+        self.search_match_index = -1
+
+        if not keyword:
+            self.search_status_var.set("")
+            return False
+
+        start = "1.0"
+        while True:
+            count = tk.IntVar(self)
+            found = self.output.search(keyword, start, stopindex="end", nocase=True, count=count)
+            if not found or count.get() <= 0:
+                break
+            end = f"{found}+{count.get()}c"
+            self.search_matches.append((found, end))
+            self.output.tag_add("search_match", found, end)
+            start = end
+
+        if not self.search_matches:
+            self.search_status_var.set("未找到")
+            return False
+
+        self.search_status_var.set(f"0/{len(self.search_matches)}")
+        if select_first:
+            self._show_search_match(0)
+        return True
+
+    def _show_search_match(self, index: int) -> None:
+        if not self.search_matches:
+            return
+        self.search_match_index = index % len(self.search_matches)
+        start, end = self.search_matches[self.search_match_index]
+        self.output.tag_remove("search_current", "1.0", "end")
+        self.output.tag_add("search_current", start, end)
+        self.output.tag_raise("search_current")
+        self.output.see(start)
+        self.search_status_var.set(f"{self.search_match_index + 1}/{len(self.search_matches)}")
+
+    def find_next(self) -> None:
+        keyword = self.search_var.get()
+        if not keyword:
+            self.search_entry.focus_set()
+            return
+        if not self.search_matches and not self._collect_search_matches(select_first=False):
+            return
+        self._show_search_match(self.search_match_index + 1)
+
+    def find_previous(self) -> None:
+        keyword = self.search_var.get()
+        if not keyword:
+            self.search_entry.focus_set()
+            return
+        if not self.search_matches and not self._collect_search_matches(select_first=False):
+            return
+        target = self.search_match_index - 1 if self.search_match_index >= 0 else len(self.search_matches) - 1
+        self._show_search_match(target)
 
     @staticmethod
     def _safe_prefix(value: str) -> str:

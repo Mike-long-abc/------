@@ -225,6 +225,16 @@
     "description": "只读列出NVS命名空间和记录"
   },
   {
+    "name": "通话License",
+    "command": "factory webrtc_license",
+    "description": "查询设备当前保存的声网License；空值时使用固件内置值"
+  },
+  {
+    "name": "设置License",
+    "command": "factory webrtc_license <请替换为设备License>",
+    "description": "将尖括号内容替换为该设备专属License后发送；下一次通话生效"
+  },
+  {
     "name": "设备重启",
     "command": "factory reboot",
     "description": "保留配置并执行软件重启"
