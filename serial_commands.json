@@ -1,0 +1,232 @@
+[
+  {
+    "name": "帮助",
+    "command": "factory help",
+    "description": "查看当前固件支持的全部工厂命令"
+  },
+  {
+    "name": "登录状态",
+    "command": "factory login",
+    "description": "查询当前工厂会话是否已解锁"
+  },
+  {
+    "name": "工厂登录",
+    "command": "factory login lujiang202202",
+    "description": "使用当前测试密码解锁工厂命令"
+  },
+  {
+    "name": "退出登录",
+    "command": "factory logout",
+    "description": "锁定当前工厂会话"
+  },
+  {
+    "name": "保存配置",
+    "command": "factory get",
+    "description": "查看NVS保存配置和OTA恢复元数据"
+  },
+  {
+    "name": "运行状态",
+    "command": "factory status",
+    "description": "查看网络、MQTT、传感器和OTA实时状态"
+  },
+  {
+    "name": "版本信息",
+    "command": "factory version",
+    "description": "查看ESP32、ESP-IDF和雷达版本"
+  },
+  {
+    "name": "内存状态",
+    "command": "factory memory",
+    "description": "查看内部RAM、DMA和PSRAM余量"
+  },
+  {
+    "name": "系统时间",
+    "command": "factory time",
+    "description": "查询设备当前系统时间"
+  },
+  {
+    "name": "日志级别",
+    "command": "factory log",
+    "description": "查询当前日志输出级别"
+  },
+  {
+    "name": "INFO日志",
+    "command": "factory log info",
+    "description": "临时切换为INFO日志，重启失效"
+  },
+  {
+    "name": "雷达DEBUG",
+    "command": "factory log debug radar",
+    "description": "临时开启雷达模块DEBUG日志"
+  },
+  {
+    "name": "WiFi状态",
+    "command": "factory wifi",
+    "description": "查询保存的SSID和Wi-Fi连接状态"
+  },
+  {
+    "name": "网络后端",
+    "command": "factory backend",
+    "description": "查询保存的LTE或Wi-Fi后端选择"
+  },
+  {
+    "name": "配网标志",
+    "command": "factory prov_done",
+    "description": "查询配网完成标志"
+  },
+  {
+    "name": "APN策略",
+    "command": "factory apn",
+    "description": "查询自动或自定义APN策略"
+  },
+  {
+    "name": "SIM状态",
+    "command": "factory at AT+CPIN?",
+    "description": "检查SIM是否就绪"
+  },
+  {
+    "name": "LTE信号",
+    "command": "factory at AT+CSQ",
+    "description": "查询蜂窝信号强度"
+  },
+  {
+    "name": "注册状态",
+    "command": "factory at AT+CEREG?",
+    "description": "查询LTE网络注册状态"
+  },
+  {
+    "name": "附着状态",
+    "command": "factory at AT+CGATT?",
+    "description": "查询分组网络附着状态"
+  },
+  {
+    "name": "运营商",
+    "command": "factory at AT+COPS?",
+    "description": "查询当前注册运营商"
+  },
+  {
+    "name": "小区信息",
+    "command": "factory at AT+QENG=\"servingcell\"",
+    "description": "查询当前LTE服务小区详细信息"
+  },
+  {
+    "name": "上传状态",
+    "command": "factory upload",
+    "description": "查询雷达环形缓冲区状态"
+  },
+  {
+    "name": "触发上传",
+    "command": "factory upload start",
+    "description": "触发一次雷达点云和红外文件上传"
+  },
+  {
+    "name": "自检结果",
+    "command": "factory selftest",
+    "description": "查询最近一次整机自检结果"
+  },
+  {
+    "name": "开始自检",
+    "command": "factory selftest run",
+    "description": "启动90秒整机自检"
+  },
+  {
+    "name": "调试流状态",
+    "command": "factory stream",
+    "description": "查询传感器TCP调试流状态"
+  },
+  {
+    "name": "停止调试流",
+    "command": "factory stream off",
+    "description": "停止传感器TCP调试流"
+  },
+  {
+    "name": "LED状态",
+    "command": "factory led",
+    "description": "查询LED自动或手动状态"
+  },
+  {
+    "name": "LED自动",
+    "command": "factory led auto",
+    "description": "恢复由设备业务状态自动控制LED"
+  },
+  {
+    "name": "全部亮灯",
+    "command": "factory led all on",
+    "description": "临时点亮红绿蓝LED"
+  },
+  {
+    "name": "全部灭灯",
+    "command": "factory led all off",
+    "description": "临时关闭红绿蓝LED"
+  },
+  {
+    "name": "语音状态",
+    "command": "factory voice",
+    "description": "查询事件语音播报开关"
+  },
+  {
+    "name": "开启语音",
+    "command": "factory voice on",
+    "description": "开启并保存事件语音播报"
+  },
+  {
+    "name": "关闭语音",
+    "command": "factory voice off",
+    "description": "关闭并保存事件语音播报"
+  },
+  {
+    "name": "音频状态",
+    "command": "factory audio",
+    "description": "查询本地音频测试状态"
+  },
+  {
+    "name": "测试音3秒",
+    "command": "factory audio tone 3",
+    "description": "播放3秒本地测试音"
+  },
+  {
+    "name": "录放音3秒",
+    "command": "factory audio record 3",
+    "description": "录音3秒后自动回放"
+  },
+  {
+    "name": "停止音频",
+    "command": "factory audio stop",
+    "description": "停止当前本地音频测试"
+  },
+  {
+    "name": "通话状态",
+    "command": "factory call",
+    "description": "查询WebRTC测试通话状态"
+  },
+  {
+    "name": "挂断通话",
+    "command": "factory call stop",
+    "description": "停止当前工厂WebRTC测试通话"
+  },
+  {
+    "name": "暗室模式",
+    "command": "factory antenna",
+    "description": "查询暗室模式保存值和生效值"
+  },
+  {
+    "name": "关闭暗室",
+    "command": "factory antenna off",
+    "description": "关闭暗室模式，重启后生效"
+  },
+  {
+    "name": "开启暗室",
+    "command": "factory antenna on",
+    "description": "开启暗室模式，重启后生效"
+  },
+  {
+    "name": "NVS记录",
+    "command": "factory nvs",
+    "description": "只读列出NVS命名空间和记录"
+  },
+  {
+    "name": "设备重启",
+    "command": "factory reboot",
+    "description": "保留配置并执行软件重启"
+  }
+]
